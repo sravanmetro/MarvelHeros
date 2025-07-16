@@ -22,3 +22,22 @@ struct ContentView: View {
 #Preview {
     ContentView()
 }
+
+
+/*
+ 
+ Allan, Elton
+ - gave project
+ - list of items
+ - how to filter data,
+ there are optionals,
+ 
+ gave exercise
+ asking questions while developing
+ 
+ what is swift 5, swift 6, latest trends
+ 
+ challenges
+ 
+ 
+ */
