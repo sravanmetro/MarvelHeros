@@ -9,7 +9,7 @@
 import Foundation
 struct Hero: Identifiable, Codable, Hashable {
     var id: UUID = UUID()
-    let name, teamName, realName, imageURL, createdBy, publisher, firstAppearance: String
+    let name, teamName, realName, imageURL, createdBy, publisher, firstAppearance, bio: String
     
     enum CodingKeys: String, CodingKey {
         case name = "name"
@@ -19,5 +19,6 @@ struct Hero: Identifiable, Codable, Hashable {
         case createdBy = "createdby"
         case publisher = "publisher"
         case imageURL = "imageurl"
+        case bio = "bio"
     }
 }

@@ -8,13 +8,21 @@
 
 import SwiftUI
     
+
 struct HerosListScreen: View {
-    @StateObject var viewModel = HerosViewModel()
-    
+    @ObservedObject var viewModel: HerosViewModel
+
     var body: some View {
-        NavigationStack {
-            homeView
-                .navigationTitle("Marvel Heros")
+        print("[SwiftUI] HerosListScreen body loaded. Heros count: \(viewModel.heros.count)")
+        return VStack {
+            if let _ = viewModel.error {
+                errorView
+            } else if viewModel.heros.isEmpty {
+                Text("Loading...")
+                    .foregroundColor(.gray)
+            } else {
+                herosListView
+            }
         }
         .onAppear {
             Task {
@@ -22,37 +30,22 @@ struct HerosListScreen: View {
             }
         }
     }
-    
-    @ViewBuilder
-    var homeView: some View {
-        if let _ = viewModel.error {
-            errorView
-        } else if viewModel.heros.isEmpty {
-            Text("Loading...")
-                .foregroundColor(.gray)
-        } else {
-            herosListView
-        }
-    }
-    
+
     var herosListView: some View {
-        List {
-            ForEach(viewModel.heros) { hero in
-                NavigationLink(value: hero) {
-                    VStack {
-                        Text(hero.name)
-                            .font(.headline)
-                        Text("Team: \(hero.teamName)")
-                            .font(.subheadline)
-                    }
+        List(viewModel.heros) { hero in
+            Button(action: {
+                viewModel.showHeroDetail(hero: hero)
+            }) {
+                VStack(alignment: .leading) {
+                    Text(hero.name)
+                        .font(.headline)
+                    Text("Team: \(hero.teamName)")
+                        .font(.subheadline)
                 }
             }
         }
-        .navigationDestination(for: Hero.self) { hero in
-            HeroScreen(hero: hero)
-        }
     }
-    
+
     var errorView: some View {
         Text(viewModel.error ?? "")
             .foregroundColor(.red)
@@ -60,6 +53,6 @@ struct HerosListScreen: View {
     }
 }
 
-#Preview {
-    HerosListScreen()
-}
+//#Preview {
+//    HerosListScreen()
+//}
