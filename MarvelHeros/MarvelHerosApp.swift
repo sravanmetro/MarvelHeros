@@ -7,11 +7,17 @@
 
 import SwiftUI
 
+
+import UIKit
+
 @main
-struct MarvelHerosApp: App {
-    var body: some Scene {
-        WindowGroup {
-            HerosListScreen()
-        }
+struct MarvelHerosApp {
+    static func main() {
+        UIApplicationMain(
+            CommandLine.argc,
+            CommandLine.unsafeArgv,
+            nil,
+            NSStringFromClass(AppDelegate.self)
+        )
     }
 }
