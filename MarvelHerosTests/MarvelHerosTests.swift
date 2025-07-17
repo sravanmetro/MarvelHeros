@@ -176,4 +176,91 @@ class HerosViewModelTests: XCTestCase {
             XCTAssertTrue(error is DecodingError, "Expected DecodingError for empty data")
         }
     }
+    
+    func testHerosInvalidURLError() async throws {
+        // Given
+        let errorService = ErrorHerosService()
+        sut = HerosViewModel(service: errorService)
+        let sut = try XCTUnwrap(self.sut)
+        
+        // When
+        await sut.fetchHeros()
+        
+        // Then
+        XCTAssertNotNil(sut)
+        XCTAssertNotNil(sut.error)
+        XCTAssertEqual(sut.error, "Invalid URL")
+        XCTAssertTrue(sut.heros.isEmpty)
+    }
+    
+    func testHerosNoDataError() async throws {
+        // Given
+        let networkManager = MockNetworkManager()
+        networkManager.mockError = MarvelHerosError.noData
+        let service = MarvelHerosService(networkManager: networkManager)
+        sut = HerosViewModel(service: service)
+        let sut = try XCTUnwrap(self.sut)
+        
+        // When
+        await sut.fetchHeros()
+        
+        // Then
+        XCTAssertNotNil(sut)
+        XCTAssertNotNil(sut.error)
+        XCTAssertEqual(sut.error, "No data received")
+        XCTAssertTrue(sut.heros.isEmpty)
+    }
+    
+    func testHerosParseError() async throws {
+        // Given
+        let networkManager = MockNetworkManager()
+        networkManager.mockData = "invalid json".data(using: .utf8)
+        let service = MarvelHerosService(networkManager: networkManager)
+        sut = HerosViewModel(service: service)
+        let sut = try XCTUnwrap(self.sut)
+        
+        // When
+        await sut.fetchHeros()
+        
+        // Then
+        XCTAssertNotNil(sut)
+        XCTAssertNotNil(sut.error)
+        XCTAssertEqual(sut.error, "Failed to parse data")
+        XCTAssertTrue(sut.heros.isEmpty)
+    }
+    
+    func testHerosCancelledOperation() async throws {
+        // Given
+        let delayedService = DelayedHerosService()
+        sut = HerosViewModel(service: delayedService)
+        let sut = try XCTUnwrap(self.sut)
+        
+        // When
+        let task = Task {
+            await sut.fetchHeros()
+        }
+        task.cancel()
+        
+        // Then
+        XCTAssertNotNil(sut)
+        XCTAssertTrue(sut.heros.isEmpty)
+    }
+    
+    func testHerosUnknownError() async throws {
+        // Given
+        let networkManager = MockNetworkManager()
+        networkManager.mockError = NSError(domain: "test", code: -1)
+        let service = MarvelHerosService(networkManager: networkManager)
+        sut = HerosViewModel(service: service)
+        let sut = try XCTUnwrap(self.sut)
+        
+        // When
+        await sut.fetchHeros()
+        
+        // Then
+        XCTAssertNotNil(sut)
+        XCTAssertNotNil(sut.error)
+        XCTAssertEqual(sut.error, "An unknown error occurred")
+        XCTAssertTrue(sut.heros.isEmpty)
+    }
 }
