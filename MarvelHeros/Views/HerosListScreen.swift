@@ -30,6 +30,8 @@ struct HerosListScreen: View {
         } else if viewModel.heros.isEmpty {
             Text("Loading...")
                 .foregroundColor(.gray)
+                .accessibilityLabel("Loading heroes")
+                .accessibilityAddTraits(.updatesFrequently)
         } else {
             herosListView
         }
@@ -45,6 +47,9 @@ struct HerosListScreen: View {
                         Text("Team: \(hero.teamName)")
                             .font(.subheadline)
                     }
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("\(hero.name) from \(hero.teamName)")
+                    .accessibilityHint("Tap to view hero details")
                 }
             }
         }
