@@ -9,7 +9,7 @@
 import SwiftUI
     
 struct HerosListScreen: View {
-    @StateObject var viewModel = HerosViewModel()
+    @StateObject var viewModel = HerosViewModel(service: MarvelHerosService())
     
     var body: some View {
         NavigationStack {

@@ -11,8 +11,8 @@ class HerosViewModel: ObservableObject {
     let service: MarvelHerosServicing
     @Published var heros: [Hero] = []
     @Published var error: String? = nil
-    
-    init(service: MarvelHerosServicing = MarvelHerosService()) {
+
+    init(service: MarvelHerosServicing) {
         self.service = service
     }
     
