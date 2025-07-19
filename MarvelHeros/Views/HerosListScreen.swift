@@ -25,15 +25,23 @@ struct HerosListScreen: View {
     
     @ViewBuilder
     var homeView: some View {
-        if let _ = viewModel.error {
-            errorView
-        } else if viewModel.heros.isEmpty {
-            Text("Loading...")
-                .foregroundColor(.gray)
+        switch viewModel.state {
+        case .loading:
+            ProgressView("Loading Heros...")
+                .progressViewStyle(CircularProgressViewStyle())
                 .accessibilityLabel("Loading heroes")
                 .accessibilityAddTraits(.updatesFrequently)
-        } else {
+        case .error(let message):
+            Text(message)
+                .foregroundColor(.red)
+                .padding()
+        case .empty:
+            Text("No heroes found.")
+                .foregroundColor(.gray)
+        case .loaded:
             herosListView
+        default:
+            EmptyView()
         }
     }
     
@@ -58,8 +66,8 @@ struct HerosListScreen: View {
         }
     }
     
-    var errorView: some View {
-        Text(viewModel.error ?? "")
+    func errorView(errorMsg: String) -> any View {
+        Text(errorMsg)
             .foregroundColor(.red)
             .padding()
     }

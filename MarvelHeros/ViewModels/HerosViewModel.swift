@@ -7,10 +7,18 @@
 
 
 import Foundation
+
+enum AppState: Equatable {
+    case idle
+    case loading
+    case loaded
+    case error(String)
+    case empty
+}
 class HerosViewModel: ObservableObject {
     let service: MarvelHerosServicing
     @Published var heros: [Hero] = []
-    @Published var error: String? = nil
+    @Published var state: AppState = .idle
 
     init(service: MarvelHerosServicing) {
         self.service = service
@@ -18,19 +26,28 @@ class HerosViewModel: ObservableObject {
     
     @MainActor
     func fetchHeros() async {
+        state = .loading
         do {
-            heros = try await service.fetchHeros()
+            let result = try await service.fetchHeros()
+            if result.isEmpty {
+                state = .empty
+            } else {
+                heros = result
+                state = .loaded
+            }
         } catch {
+            let errorMsg: String
             switch error as? MarvelHerosError {
             case .invalidURL:
-                self.error = "Invalid URL"
+                errorMsg = "Invalid URL"
             case .noData:
-                self.error = "No data received"
+                errorMsg = "No data received"
             case .parseError:
-                self.error = "Failed to parse data"
+                errorMsg = "Failed to parse data"
             default:
-                self.error = "An unknown error occurred"
+                errorMsg = "An unknown error occurred"
             }
+            state = .error(errorMsg)
         }
     }
 }
