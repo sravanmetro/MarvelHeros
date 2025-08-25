@@ -8,6 +8,10 @@
 
 public enum MarvelHerosError: Error {
     case invalidURL
+    case invalidResponse
+    case httpError(code: Int)
     case noData
     case parseError
+    case fileNotFound
+    case transport(Error)
 }

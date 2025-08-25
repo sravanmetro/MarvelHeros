@@ -7,29 +7,46 @@
 
 
 import Foundation
+@MainActor
 class HerosViewModel: ObservableObject {
     let service: MarvelHerosServicing
     @Published var heros: [Hero] = []
-    @Published var error: String? = nil
+    @Published var errorMessage: String? = nil
     
     init(service: MarvelHerosServicing = MarvelHerosService()) {
         self.service = service
     }
     
-    @MainActor
     func fetchHeros() async {
         do {
             heros = try await service.fetchHeros()
-        } catch {
-            switch error as? MarvelHerosError {
+            errorMessage = nil
+        } catch let serviceError {
+            switch serviceError as? MarvelHerosError {
             case .invalidURL:
-                self.error = "Invalid URL"
+                self.errorMessage = "Invalid URL"
+            case .invalidResponse:
+                self.errorMessage = "Invalid response from server"
+            case .httpError(let code):
+                self.errorMessage = "Server error (\(code))"
             case .noData:
-                self.error = "No data received"
+                self.errorMessage = "No data received"
             case .parseError:
-                self.error = "Failed to parse data"
+                self.errorMessage = "Failed to parse data"
+            case .fileNotFound:
+                self.errorMessage = "Offline data not found"
+            case .transport:
+                self.errorMessage = "Network error"
             default:
-                self.error = "An unknown error occurred"
+                self.errorMessage = "An unknown error occurred"
+            }
+            // Attempt offline fallback
+            do {
+                let offline = OfflineHerosService()
+                heros = try await offline.fetchHeros()
+                errorMessage = nil
+            } catch {
+                // Keep the original errorMessage; do not override if offline fails
             }
         }
     }

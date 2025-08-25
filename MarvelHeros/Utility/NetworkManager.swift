@@ -17,9 +17,19 @@ public class NetworkManager {
             throw MarvelHerosError.invalidURL
         }
         
-        let (data, response) = try await URLSession.shared.data(for: URLRequest(url: url))
-        guard (response as? HTTPURLResponse)?.statusCode == 200 else {
-            throw MarvelHerosError.noData
+        let data: Data
+        let response: URLResponse
+        do {
+            (data, response) = try await URLSession.shared.data(for: URLRequest(url: url))
+        } catch {
+            throw MarvelHerosError.transport(error)
+        }
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw MarvelHerosError.invalidResponse
+        }
+        guard (200...299).contains(httpResponse.statusCode) else {
+            throw MarvelHerosError.httpError(code: httpResponse.statusCode)
         }
         
         do {

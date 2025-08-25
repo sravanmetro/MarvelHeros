@@ -8,5 +8,4 @@
 
 public enum Constants {
     public static let baseURL = "https://www.simplifiedcoding.net/"
-    public static let herosEndPoint = "demos/marvel/"
 }

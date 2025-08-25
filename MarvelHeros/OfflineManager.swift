@@ -13,7 +13,7 @@ class OfflineHerosService: MarvelHerosServicing {
     func fetchHeros() async throws -> [Hero] {
         // get JSON Path
         guard let jsonPath = Bundle.main.path(forResource: "Heros", ofType: "json") else {
-            throw MarvelHerosError.invalidURL
+            throw MarvelHerosError.fileNotFound
         }
         
         do {
