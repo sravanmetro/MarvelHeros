@@ -25,11 +25,10 @@ struct HerosListScreen: View {
     
     @ViewBuilder
     var homeView: some View {
-        if let _ = viewModel.error {
+        if let _ = viewModel.errorMessage {
             errorView
         } else if viewModel.heros.isEmpty {
-            Text("Loading...")
-                .foregroundColor(.gray)
+            ProgressView("Loading…")
         } else {
             herosListView
         }
@@ -39,11 +38,24 @@ struct HerosListScreen: View {
         List {
             ForEach(viewModel.heros) { hero in
                 NavigationLink(value: hero) {
-                    VStack {
-                        Text(hero.name)
-                            .font(.headline)
-                        Text("Team: \(hero.teamName)")
-                            .font(.subheadline)
+                    HStack(spacing: 12) {
+                        AsyncImage(url: URL(string: hero.imageURL)) { phase in
+                            switch phase {
+                            case .success(let image): image.resizable().scaledToFill()
+                            case .failure(_): Color.gray.opacity(0.2)
+                            case .empty: ProgressView()
+                            @unknown default: EmptyView()
+                            }
+                        }
+                        .frame(width: 44, height: 44)
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
+
+                        VStack(alignment: .leading) {
+                            Text(hero.name)
+                                .font(.headline)
+                            Text("Team: \(hero.teamName)")
+                                .font(.subheadline)
+                        }
                     }
                 }
             }
@@ -54,9 +66,14 @@ struct HerosListScreen: View {
     }
     
     var errorView: some View {
-        Text(viewModel.error ?? "")
-            .foregroundColor(.red)
-            .padding()
+        VStack(spacing: 12) {
+            Text(viewModel.errorMessage ?? "")
+                .foregroundColor(.red)
+            Button("Retry") {
+                Task { await viewModel.fetchHeros() }
+            }
+        }
+        .padding()
     }
 }
 

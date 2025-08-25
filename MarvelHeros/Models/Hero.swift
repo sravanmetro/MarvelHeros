@@ -8,7 +8,7 @@
 
 import Foundation
 struct Hero: Identifiable, Codable, Hashable {
-    var id: UUID = UUID()
+    var id: String { "\(name)|\(realName)" }
     let name, teamName, realName, imageURL, createdBy, publisher, firstAppearance: String
     
     enum CodingKeys: String, CodingKey {
